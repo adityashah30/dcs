@@ -47,3 +47,7 @@
 * Then it waits for the master to send the program file and the data file to the slave.
 * On receiving the files, it executed the program and sends back the processed file.
 * Upon completion of this, it resumes listening for another broadcast from the server.
+
+##Known Bugs
+
+* The code for logarithmic algorithm is not yet implemented and hence should not be used.
