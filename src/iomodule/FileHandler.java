@@ -2,6 +2,8 @@ package iomodule;
 
 import java.util.Scanner;
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileHandler {
 
@@ -30,32 +32,44 @@ public class FileHandler {
         return 0;
     }
 
-    public static Object loadObject(String file) {
+    public synchronized Object loadObject(String file) {
         Object obj = null;
+        ObjectInputStream in = null;
         File f = new File(file);
         try {
-            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)));
+            in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)));
             try {
                 obj = in.readObject();
             } catch (ClassNotFoundException ex) {
             }
-            in.close();
         } catch (FileNotFoundException e) {
             new File(file);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return obj;
     }
 
-    public synchronized static void saveObject(String file, Object obj) {
+    public synchronized void saveObject(String file, Object obj) {
         File f = new File(file);
+        ObjectOutputStream out = null;
         try {
-            ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
+            out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
             out.writeObject(obj);
-            out.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
