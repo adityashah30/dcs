@@ -53,11 +53,11 @@ public class FileReceiveServer implements Runnable {
             }
             if (clientThreads.size() > 0) {
                 for (Thread t : clientThreads) {
-                	if(t!=null){
-	                    if (t.isAlive()) {
-	                        return false;
-	                    }
-                	}
+                    if (t != null) {
+                        if (t.isAlive()) {
+                            return false;
+                        }
+                    }
                 }
                 return true;
             }
@@ -65,10 +65,10 @@ public class FileReceiveServer implements Runnable {
         } else {
             if (clientThreads.size() > 0) {
                 for (Thread t : clientThreads) {
-                	if (t!=null){
-	                    if (t.isAlive()) {
-	                        return false;
-	                    }
+                    if (t != null) {
+                        if (t.isAlive()) {
+                            return false;
+                        }
                     }
                 }
                 return true;

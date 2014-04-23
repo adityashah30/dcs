@@ -33,18 +33,11 @@ public class FileHandler {
                 obj = in.readObject();
             } catch (ClassNotFoundException ex) {
             }
+            in.close();
         } catch (FileNotFoundException e) {
             new File(file);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-        	if (in != null){
-	            try {
-	                in.close();
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	            }
-        	}
         }
         return obj;
     }
@@ -55,14 +48,9 @@ public class FileHandler {
         try {
             out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
             out.writeObject(obj);
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
