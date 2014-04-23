@@ -37,7 +37,8 @@ public class FileReceiverThread implements Runnable {
             byte[] fileBuff = new byte[bufferSize];
             if (isMaster) {
                 if (isStats) {
-                    File tempFile = new File("tempstats");
+                	String ipAddress = socket.getInetAddress().toString().substring(1);
+                    File tempFile = new File(ipAddress);
                     long fileSize = 0;
                     int n = 0;
                     DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream(), bufferSize));
@@ -50,12 +51,11 @@ public class FileReceiverThread implements Runnable {
                     }
                     in.close();
                     fout.close();
-                    String ipAddress = socket.getInetAddress().toString().substring(1);
-                    StatsCalculator statsObject = (StatsCalculator) FileHandler.getInstance().loadObject("tempstats");
+                    StatsCalculator statsObject = (StatsCalculator) FileHandler.loadObject(ipAddress);
                     this.getInstance().writeStats(ipAddress, statsObject);
                     tempFile.delete();
                 } else {
-                    Hashtable<String, String> clientfiles = (Hashtable< String, String>) FileHandler.getInstance().loadObject("clientfiles");
+                    Hashtable<String, String> clientfiles = (Hashtable< String, String>) FileHandler.loadObject("clientfiles");
                     String filename = clientfiles.get(socket.getInetAddress().toString().substring(1));
                     outputFile = new File(filename);
                     long fileSize = 0;
@@ -107,13 +107,13 @@ public class FileReceiverThread implements Runnable {
         }
     }
 
-    public synchronized static void writeStats(String ipAddress, StatsCalculator statsObject) {
-        Hashtable<String, StatsCalculator> clientStats = (Hashtable<String, StatsCalculator>) FileHandler.getInstance().loadObject("clientstats");
+    public static synchronized void writeStats(String ipAddress, StatsCalculator statsObject) {
+        Hashtable<String, StatsCalculator> clientStats = (Hashtable<String, StatsCalculator>) FileHandler.loadObject("clientstats");
         if (clientStats == null) {
             clientStats = new Hashtable<String, StatsCalculator>();
         }
         clientStats.put(ipAddress, statsObject);
-        FileHandler.getInstance().saveObject("clientstats", clientStats);
+        FileHandler.saveObject("clientstats", clientStats);
 
     }
 }

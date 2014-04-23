@@ -16,7 +16,7 @@ public class FileMerger {
         } else {
             this.mergePath = mergePath;
         }
-        numFiles = ((Hashtable<String, String>) FileHandler.getInstance().loadObject("clientfiles")).size();
+        numFiles = ((Hashtable<String, String>) FileHandler.loadObject("clientfiles")).size();
         mergeFiles();
     }
 

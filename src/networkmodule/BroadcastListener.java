@@ -27,7 +27,7 @@ public class BroadcastListener implements Runnable {
                     break;
                 }
             }
-            FileHandler.getInstance().saveObject("serverinfo", ipAddress);
+            FileHandler.saveObject("serverinfo", ipAddress);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

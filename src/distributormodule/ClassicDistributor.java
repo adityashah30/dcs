@@ -11,7 +11,7 @@ public class ClassicDistributor {
     private double[] chunkSizes;
 
     public ClassicDistributor() {
-        this.statTable = (Hashtable<String, StatsCalculator>) (FileHandler.getInstance().loadObject("clientstats"));
+        this.statTable = (Hashtable<String, StatsCalculator>) (FileHandler.loadObject("clientstats"));
         this.numClients = statTable.size();
         this.chunkSizes = new double[numClients];
         calculate();
@@ -19,8 +19,8 @@ public class ClassicDistributor {
 
     public void calculate() {
         for (int i = 0; i < numClients; i++) {
-            chunkSizes[i] = 1 / numClients;
+            chunkSizes[i] = 1 / (double)numClients;
         }
-        FileHandler.getInstance().saveObject("filechunks", chunkSizes);
+        FileHandler.saveObject("filechunks", chunkSizes);
     }
 }

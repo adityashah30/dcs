@@ -17,7 +17,7 @@ public class Distributor {
         this.fileSize = fsize;
         this.order = order;
         this.power = power;
-        this.statTable = (Hashtable<String, StatsCalculator>) (FileHandler.getInstance().loadObject("clientstats"));
+        this.statTable = (Hashtable<String, StatsCalculator>) (FileHandler.loadObject("clientstats"));
         this.numClients = statTable.size();
         this.chunkSizes = new double[numClients];
         calculate();
@@ -58,7 +58,7 @@ public class Distributor {
                 chunkSizes[i] = Math.log(c * product[i]) / (fileSize * Math.log(power));
             }
         }
-        FileHandler.getInstance().saveObject("filechunks", chunkSizes);
+        FileHandler.saveObject("filechunks", chunkSizes);
     }
 
 }

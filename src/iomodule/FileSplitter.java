@@ -15,8 +15,8 @@ public class FileSplitter {
     public FileSplitter(String fname) {
 
         file = new File(fname);
-        fileSize = FileHandler.getInstance().getNumInts(fname);
-        chunkSizes = (double[]) FileHandler.getInstance().loadObject("filechunks");
+        fileSize = FileHandler.getNumInts(fname);
+        chunkSizes = (double[]) FileHandler.loadObject("filechunks");
         numClients = chunkSizes.length;
         split();
         writeClientFiles();
@@ -58,13 +58,13 @@ public class FileSplitter {
 
     public void writeClientFiles() {
         Hashtable<String, String> clientFiles = new Hashtable<String, String>();
-        Hashtable<String, StatsCalculator> clientStats = (Hashtable<String, StatsCalculator>) FileHandler.getInstance().loadObject("clientstats");
+        Hashtable<String, StatsCalculator> clientStats = (Hashtable<String, StatsCalculator>) FileHandler.loadObject("clientstats");
         int i = 0;
         for (String ipAddress : clientStats.keySet()) {
             clientFiles.put(ipAddress, "file" + i + ".txt");
             i++;
         }
-        FileHandler.getInstance().saveObject("clientfiles", clientFiles);
+        FileHandler.saveObject("clientfiles", clientFiles);
     }
 
 }

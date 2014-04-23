@@ -54,7 +54,6 @@ public class ControlModule implements Runnable {
                 JOptionPane.showMessageDialog(gui, "No Clients Online..Exiting..");
                 System.exit(0);
             }
-            long startTime = System.currentTimeMillis();
             System.out.println("Algo starts...");
             gui.setStatusLabel("Running Algo");
             runAlgo();
@@ -65,6 +64,7 @@ public class ControlModule implements Runnable {
             splitFile();
             gui.setProgressBar(60);
             System.out.println("FileSplit ends...");
+            long startTime = System.currentTimeMillis();
             System.out.println("Send/Receive starts...");
             gui.setStatusLabel("Send/Receive");
             send();
@@ -130,7 +130,7 @@ public class ControlModule implements Runnable {
             }
             f = new File("clientfiles");
             if (f.exists()) {
-                int numClients = ((Hashtable<String, String>) FileHandler.getInstance().loadObject("clientfiles")).size();
+                int numClients = ((Hashtable<String, String>) FileHandler.loadObject("clientfiles")).size();
                 for (int i = 1; i < numClients; i++) {
                     File f2 = new File("file" + i + ".txt");
                     if (f2.exists()) {
@@ -191,17 +191,17 @@ public class ControlModule implements Runnable {
 
     public void calculateStats() {
         StatsCalculator statsObj = new StatsCalculator();
-        FileHandler.getInstance().saveObject("stats", statsObj);
+        FileHandler.saveObject("stats", statsObj);
     }
 
     public void sendStats() {
-        String serverIpAddress = ((InetAddress) FileHandler.getInstance().loadObject("serverinfo")).toString().substring(1);
+        String serverIpAddress = ((InetAddress) FileHandler.loadObject("serverinfo")).toString().substring(1);
         new Thread(new FileSenderThread("stats", null, serverIpAddress, sendPort, isMaster)).start();
     }
 
     public void runAlgo() {
         if (isAlgo) {
-            new Distributor(FileHandler.getInstance().getNumInts(dataPath), order, power);
+            new Distributor(FileHandler.getNumInts(dataPath), order, power);
         } else {
             new ClassicDistributor();
         }
@@ -219,12 +219,12 @@ public class ControlModule implements Runnable {
 
     public void send() {
         if (isMaster) {
-            Hashtable<String, String> clientTable = (Hashtable<String, String>) FileHandler.getInstance().loadObject("clientfiles");
+            Hashtable<String, String> clientTable = (Hashtable<String, String>) FileHandler.loadObject("clientfiles");
             for (String ipaddress : clientTable.keySet()) {
                 new Thread(new FileSenderThread(programPath, clientTable.get(ipaddress), ipaddress, sendPort, isMaster)).start();
             }
         } else {
-            String serverIpAddress = ((InetAddress) FileHandler.getInstance().loadObject("serverinfo")).toString().substring(1);
+            String serverIpAddress = ((InetAddress) FileHandler.loadObject("serverinfo")).toString().substring(1);
             Thread t = new Thread(new FileSenderThread("file1.txt", null, serverIpAddress, sendPort, isMaster));
             t.start();
             while (t.isAlive());

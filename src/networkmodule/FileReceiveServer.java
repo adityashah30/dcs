@@ -21,7 +21,7 @@ public class FileReceiveServer implements Runnable {
         this.isStats = isStats;
         clientThreads = new ArrayList<Thread>();
         if (isMaster && !isStats) {
-            totalClients = ((Hashtable<String, String>) FileHandler.getInstance().loadObject("clientstats")).size();
+            totalClients = ((Hashtable<String, String>) FileHandler.loadObject("clientstats")).size();
             clientsReceived = 0;
         }
         try {
@@ -53,9 +53,11 @@ public class FileReceiveServer implements Runnable {
             }
             if (clientThreads.size() > 0) {
                 for (Thread t : clientThreads) {
-                    if (t.isAlive()) {
-                        return false;
-                    }
+                	if(t!=null){
+	                    if (t.isAlive()) {
+	                        return false;
+	                    }
+                	}
                 }
                 return true;
             }
@@ -63,8 +65,10 @@ public class FileReceiveServer implements Runnable {
         } else {
             if (clientThreads.size() > 0) {
                 for (Thread t : clientThreads) {
-                    if (t.isAlive()) {
-                        return false;
+                	if (t!=null){
+	                    if (t.isAlive()) {
+	                        return false;
+	                    }
                     }
                 }
                 return true;

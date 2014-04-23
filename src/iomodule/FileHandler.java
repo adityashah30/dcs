@@ -7,15 +7,6 @@ import java.util.logging.Logger;
 
 public class FileHandler {
 
-    private static FileHandler instance = null;
-
-    public static FileHandler getInstance() {
-        if (instance == null) {
-            instance = new FileHandler();
-        }
-        return instance;
-    }
-
     public static long getNumInts(String file) {
         try {
             File f = new File(file);
@@ -32,7 +23,7 @@ public class FileHandler {
         return 0;
     }
 
-    public synchronized Object loadObject(String file) {
+    public static synchronized Object loadObject(String file) {
         Object obj = null;
         ObjectInputStream in = null;
         File f = new File(file);
@@ -47,16 +38,18 @@ public class FileHandler {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        	if (in != null){
+	            try {
+	                in.close();
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+        	}
         }
         return obj;
     }
 
-    public synchronized void saveObject(String file, Object obj) {
+    public static synchronized void saveObject(String file, Object obj) {
         File f = new File(file);
         ObjectOutputStream out = null;
         try {
