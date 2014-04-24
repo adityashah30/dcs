@@ -1,22 +1,17 @@
 package iomodule;
 
-import java.util.Scanner;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.StringTokenizer;
 
 public class FileHandler {
 
     public static long getNumInts(String file) {
         try {
             File f = new File(file);
-            Scanner in = new Scanner(new BufferedReader(new FileReader(f)));
-            long count = 0;
-            while (in.hasNextInt()) {
-                int i = in.nextInt();
-                count++;
-            }
-            return count;
+            BufferedReader in = new BufferedReader(new FileReader(f));
+            String s = in.readLine();
+            in.close();
+            return (long) new StringTokenizer(s).countTokens();
         } catch (IOException e) {
             e.printStackTrace();
         }
