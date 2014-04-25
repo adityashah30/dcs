@@ -24,6 +24,7 @@ public class ControlModule implements Runnable {
     private String dataPath;
     private int order;
     private double power;
+    private long fileSize;
 
     public ControlModule(MainGUI gui) {
         this.gui = gui;
@@ -201,14 +202,15 @@ public class ControlModule implements Runnable {
 
     public void runAlgo() {
         if (isAlgo) {
-            new Distributor(FileHandler.getNumInts(dataPath), order, power);
+            fileSize = FileHandler.getNumInts(dataPath);
+            new Distributor(fileSize, order, power);
         } else {
             new ClassicDistributor();
         }
     }
 
     public void splitFile() {
-        new FileSplitter(dataPath);
+        new FileSplitter(dataPath, fileSize);
     }
 
     public void executeProgram() {

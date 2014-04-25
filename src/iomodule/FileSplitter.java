@@ -12,10 +12,10 @@ public class FileSplitter {
     private int numClients;
     private long fileSize;
 
-    public FileSplitter(String fname) {
+    public FileSplitter(String fname, long fsize) {
 
         file = new File(fname);
-        fileSize = FileHandler.getNumInts(fname);
+        fileSize = fsize;
         chunkSizes = (double[]) FileHandler.loadObject("filechunks");
         numClients = chunkSizes.length;
         split();

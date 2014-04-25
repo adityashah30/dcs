@@ -20,10 +20,17 @@ public class FileSenderThread implements Runnable {
         this.ipaddress = ipaddress;
         this.port = port;
         this.isMaster = isMaster;
-        try {
-            this.sendSocket = new Socket(ipaddress, port);
-        } catch (IOException e) {
-            e.printStackTrace();
+        this.sendSocket = null;
+        while (sendSocket == null) {
+            try {
+                this.sendSocket = new Socket(ipaddress, port);
+            } catch (IOException e) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                }
+                this.sendSocket = null;
+            }
         }
     }
 
