@@ -23,43 +23,34 @@ public class FileMerger {
     public void mergeFiles() {
         try {
             LinkedList<String> fqueue = new LinkedList<String>();
-            String file1, file2 = null, lastFile;
-            int i;
-            for (i = 0; i < numFiles; i++) {
-                fqueue.add("file" + i + ".txt");
+            LinkedList<String> dqueue = new LinkedList<String>();
+            String file1, file2;
+            for (int i = 0; i < numFiles; i++) {
+                fqueue.addLast("file" + i + ".txt");
             }
             while (fqueue.size() != 1) {
-                Thread threads[] = new Thread[fqueue.size()];
-                if (fqueue.size() % 2 == 0) {
-                    for (i = 0; i < fqueue.size(); i += 2) {
-                        file1 = fqueue.remove();
-                        file2 = fqueue.remove();
-                        threads[i / 2] = new Thread(new ExecuteJAR(mergePath, file1 + " " + file2));
-                        threads[i / 2].start();
-                        fqueue.add(file1);
-                    }
-                    for (i = 0; i < fqueue.size(); i++) {
-                        threads[i].join();
-                    }
-                } else {
-                    for (i = 0; i < fqueue.size() - 1; i += 2) {
-                        file1 = fqueue.remove();
-                        file2 = fqueue.remove();
-                        threads[i / 2] = new Thread(new ExecuteJAR(mergePath, file1 + " " + file2));
-                        threads[i / 2].start();
-                        fqueue.add(file1);
-                    }
-                    for (i = 0; i < fqueue.size() - 1; i++) {
-                        threads[i].join();
-                    }
-                    lastFile = fqueue.remove();
-                    fqueue.add(lastFile);
+                Thread[] threads = new Thread[fqueue.size() / 2];
+                for (int i = 0; i < threads.length; i++) {
+                    file1 = fqueue.removeFirst();
+                    file2 = fqueue.removeFirst();
+                    threads[i] = new Thread(new ExecuteJAR(mergePath, file1 + " " + file2));
+                    threads[i].start();
+                    fqueue.addLast(file1);
+                    dqueue.addLast(file2);
                 }
-                File f = new File(file2);
-                if (f.exists()) {
-                    f.delete();
+                if (fqueue.size() % 2 == 1) {
+                    fqueue.addLast(fqueue.removeFirst());
                 }
-
+                for (int i = 0; i < threads.length; i++) {
+                    threads[i].join();
+                }
+                int dsize = dqueue.size();
+                for (int i = 0; i < dsize; i++) {
+                    File f = new File(dqueue.removeFirst());
+                    if (f.exists()) {
+                        f.delete();
+                    }
+                }
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
