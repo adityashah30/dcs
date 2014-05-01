@@ -29,7 +29,8 @@ public class FileMerger {
                 fqueue.addLast("file" + i + ".txt");
             }
             while (fqueue.size() != 1) {
-                Thread[] threads = new Thread[fqueue.size() / 2];
+                int qSize = fqueue.size();
+                Thread[] threads = new Thread[qSize / 2];
                 for (int i = 0; i < threads.length; i++) {
                     file1 = fqueue.removeFirst();
                     file2 = fqueue.removeFirst();
@@ -38,7 +39,7 @@ public class FileMerger {
                     fqueue.addLast(file1);
                     dqueue.addLast(file2);
                 }
-                if (fqueue.size() % 2 == 1) {
+                if (qSize % 2 == 1) {
                     fqueue.addLast(fqueue.removeFirst());
                 }
                 for (int i = 0; i < threads.length; i++) {
