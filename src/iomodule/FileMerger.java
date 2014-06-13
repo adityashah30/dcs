@@ -1,8 +1,9 @@
 package iomodule;
 
-import java.util.Hashtable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.io.File;
+import statsmodule.Stats;
 import executormodule.ExecuteJAR;
 
 public class FileMerger {
@@ -16,7 +17,7 @@ public class FileMerger {
         } else {
             this.mergePath = mergePath;
         }
-        numFiles = ((Hashtable<String, String>) FileHandler.loadObject("clientfiles")).size();
+        numFiles = ((ArrayList<Stats>) FileHandler.loadObject("clientstats")).size();
         mergeFiles();
     }
 

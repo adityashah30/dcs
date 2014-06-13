@@ -4,6 +4,7 @@ import iomodule.FileHandler;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import statsmodule.Stats;
 
 public class FileReceiveServer implements Runnable {
 
@@ -21,7 +22,7 @@ public class FileReceiveServer implements Runnable {
         this.isStats = isStats;
         clientThreads = new ArrayList<Thread>();
         if (isMaster && !isStats) {
-            totalClients = ((Hashtable<String, String>) FileHandler.loadObject("clientstats")).size();
+            totalClients = ((ArrayList<Stats>) FileHandler.loadObject("clientstats")).size();
             clientsReceived = 0;
         }
         try {

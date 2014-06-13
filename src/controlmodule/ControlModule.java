@@ -128,11 +128,7 @@ public class ControlModule implements Runnable {
         if (isMaster) {
             File f = new File("clientstats");
             if (f.exists()) {
-                f.delete();
-            }
-            f = new File("clientfiles");
-            if (f.exists()) {
-                int numClients = ((ArrayList<Stats>) FileHandler.loadObject("clientfiles")).size();
+                int numClients = ((ArrayList<Stats>) FileHandler.loadObject("clientstats")).size();
                 for (int i = 1; i < numClients; i++) {
                     File f2 = new File("file" + i + ".txt");
                     if (f2.exists()) {
@@ -221,7 +217,7 @@ public class ControlModule implements Runnable {
 
     public void send() {
         if (isMaster) {
-            ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientfiles");
+            ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
             for (int i = 0; i < clientStats.size(); i++) {
                 new Thread(new FileSenderThread(programPath, clientStats.get(i).getFilename(), clientStats.get(i).getIpAddress(), sendPort, isMaster)).start();
             }

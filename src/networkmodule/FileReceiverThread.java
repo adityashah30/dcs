@@ -16,7 +16,6 @@ public class FileReceiverThread implements Runnable {
     private static FileReceiverThread instance = null;
 
     public FileReceiverThread() {
-
     }
 
     public FileReceiverThread(Socket socket, boolean isMaster, boolean isStats) {
