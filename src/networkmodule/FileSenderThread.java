@@ -11,6 +11,7 @@ public class FileSenderThread implements Runnable {
     private int port;
     private Socket sendSocket;
     private boolean isMaster;
+    private long runningTime;
 
     public FileSenderThread(String filename1, String filename2, String ipaddress, int port, boolean isMaster) {
         file1 = new File(filename1);
@@ -32,6 +33,11 @@ public class FileSenderThread implements Runnable {
                 this.sendSocket = null;
             }
         }
+    }
+
+    public FileSenderThread(String filename1, String filename2, String ipaddress, int port, boolean isMaster, long runningTime) {
+        this(filename1, filename2, ipaddress, port, isMaster);
+        this.runningTime = runningTime;
     }
 
     public void run() {
@@ -63,6 +69,7 @@ public class FileSenderThread implements Runnable {
             } else {
                 DataOutputStream out = new DataOutputStream((new BufferedOutputStream(sendSocket.getOutputStream(), bufferSize)));
                 BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file1), bufferSize);
+                out.writeLong(runningTime);
                 long fileSize1 = file1.length();
                 out.writeLong(fileSize1);
                 out.flush();

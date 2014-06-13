@@ -15,7 +15,6 @@ public class MainGUI extends javax.swing.JFrame {
     }
 
     private void afterConstructor() {
-        setWindowCloseOperation();
         controlModule = new ControlModule(this);
         setDefaultValues();
     }
@@ -35,14 +34,6 @@ public class MainGUI extends javax.swing.JFrame {
         DataBrowseButton.setEnabled(false);
         OrderComboBox.setEnabled(false);
         PowerBaseTextField.setEnabled(false);
-    }
-
-    public void setWindowCloseOperation() {
-        this.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                controlModule.fileCleanup();
-            }
-        });
     }
 
     /**
@@ -95,6 +86,11 @@ public class MainGUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Distributed Computing System");
         setName("MainGUI"); // NOI18N
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
 
         MainPanel.setLayout(new javax.swing.BoxLayout(MainPanel, javax.swing.BoxLayout.Y_AXIS));
@@ -225,7 +221,7 @@ public class MainGUI extends javax.swing.JFrame {
         OrderLabel.setText("Order:");
         OrderPanel.add(OrderLabel);
 
-        OrderComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Polynomial", "Exponential", "Logarithmic" }));
+        OrderComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Polynomial" }));
         OrderComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 OrderComboBoxActionPerformed(evt);
@@ -389,6 +385,15 @@ public class MainGUI extends javax.swing.JFrame {
         //TODO
     }//GEN-LAST:event_ProgramTextFieldActionPerformed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                controlModule.fileCleanup();
+            }
+        });
+    }//GEN-LAST:event_formWindowClosing
+
     public void getAllVals() {
         controlModule.setSendPort((int) SendPortSpinner.getValue());
         controlModule.setReceivePort((int) ReceivePortSpinner.getValue());
@@ -398,10 +403,6 @@ public class MainGUI extends javax.swing.JFrame {
         String order = OrderComboBox.getSelectedItem().toString();
         if (order.equals("Polynomial")) {
             controlModule.setOrder(1);
-        } else if (order.equals("Exponential")) {
-            controlModule.setOrder(2);
-        } else {
-            controlModule.setOrder(3);
         }
         controlModule.setTimeOut((int) TimeOutSpinner.getValue());
         controlModule.setProgramPath(ProgramTextField.getText());
@@ -425,6 +426,7 @@ public class MainGUI extends javax.swing.JFrame {
          */
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
         } catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(MainGUI.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);

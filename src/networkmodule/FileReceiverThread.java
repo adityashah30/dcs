@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import iomodule.FileHandler;
 import statsmodule.StatsCalculator;
+import statsmodule.Stats;
 
 public class FileReceiverThread implements Runnable {
 
@@ -37,7 +38,7 @@ public class FileReceiverThread implements Runnable {
             byte[] fileBuff = new byte[bufferSize];
             if (isMaster) {
                 if (isStats) {
-                	String ipAddress = socket.getInetAddress().toString().substring(1);
+                    String ipAddress = socket.getInetAddress().toString().substring(1);
                     File tempFile = new File(ipAddress);
                     long fileSize = 0;
                     int n = 0;
@@ -55,13 +56,21 @@ public class FileReceiverThread implements Runnable {
                     this.getInstance().writeStats(ipAddress, statsObject);
                     tempFile.delete();
                 } else {
-                    Hashtable<String, String> clientfiles = (Hashtable< String, String>) FileHandler.loadObject("clientfiles");
-                    String filename = clientfiles.get(socket.getInetAddress().toString().substring(1));
+                    ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
+                    String filename = "";
+                    for (Stats st : clientStats) {
+                        if (st.getIpAddress() == socket.getInetAddress().toString().substring(1)) {
+                            filename = st.getFilename();
+                            break;
+                        }
+                    }
                     outputFile = new File(filename);
                     long fileSize = 0;
                     int n = 0;
                     DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream(), bufferSize));
                     FileOutputStream fout = new FileOutputStream(outputFile);
+                    long runningTime = in.readLong();
+                    this.getInstance().writeTime(socket.getInetAddress().toString().substring(1), runningTime);
                     fileSize = in.readLong();
                     while ((fileSize > 0) && (n = in.read(fileBuff, 0, (int) Math.min(bufferSize, fileSize))) != -1) {
                         fout.write(fileBuff, 0, n);
@@ -108,12 +117,25 @@ public class FileReceiverThread implements Runnable {
     }
 
     public static synchronized void writeStats(String ipAddress, StatsCalculator statsObject) {
-        Hashtable<String, StatsCalculator> clientStats = (Hashtable<String, StatsCalculator>) FileHandler.loadObject("clientstats");
+        ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
         if (clientStats == null) {
-            clientStats = new Hashtable<String, StatsCalculator>();
+            clientStats = new ArrayList<>();
         }
-        clientStats.put(ipAddress, statsObject);
+        Stats statsObj = new Stats(statsObject);
+        statsObj.setIpAddress(ipAddress);
+        statsObj.setFilename("file" + clientStats.size() + ".txt");
+        clientStats.add(statsObj);
         FileHandler.saveObject("clientstats", clientStats);
+    }
 
+    public static synchronized void writeTime(String ipAddress, long time) {
+        ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
+        for (Stats st : clientStats) {
+            if (st.getIpAddress() == ipAddress) {
+                st.setTime(time);
+                break;
+            }
+        }
+        FileHandler.saveObject("clientstats", clientStats);
     }
 }

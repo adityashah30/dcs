@@ -1,14 +1,14 @@
 package iomodule;
 
 import java.io.*;
-import java.util.Hashtable;
+import java.util.ArrayList;
 import java.util.Scanner;
-import statsmodule.StatsCalculator;
+import statsmodule.Stats;
 
 public class FileSplitter {
 
     private File file;
-    private double[] chunkSizes;
+    private ArrayList<Stats> clientStats;
     private int numClients;
     private long fileSize;
 
@@ -16,10 +16,9 @@ public class FileSplitter {
 
         file = new File(fname);
         fileSize = fsize;
-        chunkSizes = (double[]) FileHandler.loadObject("filechunks");
-        numClients = chunkSizes.length;
+        clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
+        numClients = clientStats.size();
         split();
-        writeClientFiles();
     }
 
     public void split() {
@@ -28,9 +27,9 @@ public class FileSplitter {
             long lastindex = -1;
             Scanner in = new Scanner(new BufferedReader(new FileReader(file)));
             for (int fileCount = 0; fileCount < numClients; fileCount++) {
-                File newFile = new File("file" + fileCount + ".txt");
+                File newFile = new File(clientStats.get(fileCount).getFilename());
                 BufferedWriter out = new BufferedWriter(new FileWriter(newFile));
-                int size = (int) (chunkSizes[fileCount] * fileSize);
+                int size = (int) (clientStats.get(fileCount).getChunkSize() * fileSize);
                 startindex = lastindex + 1;
                 if (fileCount == numClients - 1) {
                     lastindex = fileSize - 1;
@@ -54,17 +53,6 @@ public class FileSplitter {
             }
         } catch (IOException e) {
         }
-    }
-
-    public void writeClientFiles() {
-        Hashtable<String, String> clientFiles = new Hashtable<String, String>();
-        Hashtable<String, StatsCalculator> clientStats = (Hashtable<String, StatsCalculator>) FileHandler.loadObject("clientstats");
-        int i = 0;
-        for (String ipAddress : clientStats.keySet()) {
-            clientFiles.put(ipAddress, "file" + i + ".txt");
-            i++;
-        }
-        FileHandler.saveObject("clientfiles", clientFiles);
     }
 
 }

@@ -1,26 +1,24 @@
 package distributormodule;
 
 import iomodule.FileHandler;
-import java.util.Hashtable;
-import statsmodule.StatsCalculator;
+import java.util.ArrayList;
+import statsmodule.Stats;
 
 public class ClassicDistributor {
 
-    private Hashtable<String, StatsCalculator> statTable;
+    private ArrayList<Stats> clientStats;
     private int numClients;
-    private double[] chunkSizes;
 
     public ClassicDistributor() {
-        this.statTable = (Hashtable<String, StatsCalculator>) (FileHandler.loadObject("clientstats"));
-        this.numClients = statTable.size();
-        this.chunkSizes = new double[numClients];
+        this.clientStats = (ArrayList<Stats>) (FileHandler.loadObject("clientstats"));
+        this.numClients = clientStats.size();
         calculate();
     }
 
     public void calculate() {
         for (int i = 0; i < numClients; i++) {
-            chunkSizes[i] = 1 / (double)numClients;
+            clientStats.get(i).setChunkSize(1 / (double) numClients);
         }
-        FileHandler.saveObject("filechunks", chunkSizes);
+        FileHandler.saveObject("clientstats", clientStats);
     }
 }

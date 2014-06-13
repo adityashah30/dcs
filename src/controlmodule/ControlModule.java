@@ -7,7 +7,7 @@ import distributormodule.*;
 import executormodule.*;
 import iomodule.*;
 import java.net.InetAddress;
-import java.util.Hashtable;
+import java.util.ArrayList;
 import networkmodule.*;
 import statsmodule.*;
 
@@ -25,6 +25,7 @@ public class ControlModule implements Runnable {
     private int order;
     private double power;
     private long fileSize;
+    private long runningTime;
 
     public ControlModule(MainGUI gui) {
         this.gui = gui;
@@ -131,17 +132,13 @@ public class ControlModule implements Runnable {
             }
             f = new File("clientfiles");
             if (f.exists()) {
-                int numClients = ((Hashtable<String, String>) FileHandler.loadObject("clientfiles")).size();
+                int numClients = ((ArrayList<Stats>) FileHandler.loadObject("clientfiles")).size();
                 for (int i = 1; i < numClients; i++) {
                     File f2 = new File("file" + i + ".txt");
                     if (f2.exists()) {
                         f2.delete();
                     }
                 }
-                f.delete();
-            }
-            f = new File("filechunks");
-            if (f.exists()) {
                 f.delete();
             }
             f = new File("file0.txt");
@@ -215,19 +212,22 @@ public class ControlModule implements Runnable {
 
     public void executeProgram() {
         Thread t = new Thread(new ExecuteJAR("program.jar", "file1.txt"));
+        long startTime = System.currentTimeMillis();
         t.start();
         while (t.isAlive());
+        long endTime = System.currentTimeMillis();
+        runningTime = endTime - startTime;
     }
 
     public void send() {
         if (isMaster) {
-            Hashtable<String, String> clientTable = (Hashtable<String, String>) FileHandler.loadObject("clientfiles");
-            for (String ipaddress : clientTable.keySet()) {
-                new Thread(new FileSenderThread(programPath, clientTable.get(ipaddress), ipaddress, sendPort, isMaster)).start();
+            ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientfiles");
+            for (int i = 0; i < clientStats.size(); i++) {
+                new Thread(new FileSenderThread(programPath, clientStats.get(i).getFilename(), clientStats.get(i).getIpAddress(), sendPort, isMaster)).start();
             }
         } else {
             String serverIpAddress = ((InetAddress) FileHandler.loadObject("serverinfo")).toString().substring(1);
-            Thread t = new Thread(new FileSenderThread("file1.txt", null, serverIpAddress, sendPort, isMaster));
+            Thread t = new Thread(new FileSenderThread("file1.txt", null, serverIpAddress, sendPort, isMaster, runningTime));
             t.start();
             while (t.isAlive());
         }
