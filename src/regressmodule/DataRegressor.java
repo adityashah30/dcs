@@ -2,13 +2,17 @@ package regressmodule;
 
 import java.io.*;
 import java.util.*;
+import org.ejml.simple.SimpleMatrix;
 import polynomial.PolynomialRegression;
 
 public class DataRegressor {
 
-    public static void main(String[] args) throws IOException {
-        DataRegressor obj1 = new DataRegressor();
-        obj1.getEquation();
+    public static void main(String[] args) {
+        new DataRegressor();
+    }
+
+    public DataRegressor() {
+        getEquation();
     }
 
     public void getEquation() {
@@ -35,7 +39,15 @@ public class DataRegressor {
             }
             PolynomialRegression pobj1 = new PolynomialRegression(X, Y, 1, 10);
             pobj1.fit();
-            pobj1.getCoefficients().getTheta().saveToFileCSV("data/equation");
+            SimpleMatrix thetaNew = pobj1.getCoefficients().getTheta();
+            double alpha = 0.125;
+            SimpleMatrix thetaOld = null;
+            try {
+                thetaOld = SimpleMatrix.loadCSV("data/equation");
+                thetaNew = thetaOld.scale(1 - alpha).plus(thetaNew.scale(alpha));
+            } catch (IOException e) {
+            }
+            thetaNew.saveToFileCSV("data/equation");
         } catch (IOException e) {
             e.printStackTrace();
         }
