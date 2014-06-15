@@ -1,6 +1,8 @@
 package statsmodule;
 
-public class Stats {
+import java.io.Serializable;
+
+public class Stats implements Serializable {
 
     private StatsCalculator statsCalculator;
     private double chunkSize;

@@ -57,8 +57,9 @@ public class FileReceiverThread implements Runnable {
                 } else {
                     ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
                     String filename = "";
+                    String socketIpAddress = socket.getInetAddress().toString().substring(1);
                     for (Stats st : clientStats) {
-                        if (st.getIpAddress() == socket.getInetAddress().toString().substring(1)) {
+                        if (st.getIpAddress().equals(socketIpAddress)) {
                             filename = st.getFilename();
                             break;
                         }
