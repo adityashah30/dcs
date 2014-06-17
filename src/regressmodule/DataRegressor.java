@@ -7,10 +7,6 @@ import polynomial.PolynomialRegression;
 
 public class DataRegressor {
 
-    public static void main(String[] args) {
-        new DataRegressor();
-    }
-
     public DataRegressor() {
         getEquation();
     }
@@ -37,7 +33,7 @@ public class DataRegressor {
                 X[i][2] = L.get(i);
                 Y[i][0] = T.get(i);
             }
-            PolynomialRegression pobj1 = new PolynomialRegression(X, Y, 1, 10);
+            PolynomialRegression pobj1 = new PolynomialRegression(X, Y, 1, 4);
             pobj1.fit();
             SimpleMatrix thetaNew = pobj1.getCoefficients().getTheta();
             double alpha = 0.125;

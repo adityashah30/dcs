@@ -1,8 +1,11 @@
 package distributormodule;
 
+import org.ejml.simple.SimpleMatrix;
 import java.util.ArrayList;
 import iomodule.FileHandler;
+import java.io.IOException;
 import statsmodule.Stats;
+import polynomialmodule.*;
 
 public class Distributor {
 
@@ -11,6 +14,9 @@ public class Distributor {
     private int order;
     private double power;
     private int numClients;
+    private double[] oldDsize;
+    private double[] newDsize;
+    private double alpha = 0.25;
 
     public Distributor(long fsize, int order, double power) {
         this.fileSize = fsize;
@@ -18,10 +24,22 @@ public class Distributor {
         this.power = power;
         this.clientStats = (ArrayList<Stats>) (FileHandler.loadObject("clientstats"));
         this.numClients = clientStats.size();
+        this.oldDsize = new double[numClients];
+        this.newDsize = new double[numClients];
         calculate();
     }
 
     public void calculate() {
+        oldCalculate();
+        newCalculate();
+        for (int i = 0; i < numClients; i++) {
+            double size = (alpha) * oldDsize[i] + (1 - alpha) * newDsize[i];
+            clientStats.get(i).setChunkSize(size);
+        }
+        FileHandler.saveObject("clientstats", clientStats);
+    }
+
+    public void oldCalculate() {
         if (order == 1) {
             int i = 0;
             double product[] = new double[numClients];
@@ -31,10 +49,76 @@ public class Distributor {
                 sum += product[i];
             }
             for (i = 0; i < numClients; i++) {
-                clientStats.get(i).setChunkSize(product[i] / sum);
+                oldDsize[i] = product[i] / sum;
             }
         }
-        FileHandler.saveObject("clientstats", clientStats);
+
+    }
+
+    public void newCalculate() {
+        if (order == 1) {
+            SimpleMatrix theta = null;
+            try {
+                theta = SimpleMatrix.loadCSV("data/equation");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            int thetaRows = theta.numRows();
+            int thetaPower = (thetaRows - 1) / 3;
+            double thetaconst = 0;
+            double[] thetadi = new double[thetaPower];
+            double[] thetafi = new double[thetaPower];
+            double[] thetali = new double[thetaPower];
+            if (thetaPower == 1) {
+                int row = 0;
+                thetaconst = theta.get(row++, 0);
+                for (int i = 0; i < thetaPower; i++) {
+                    thetadi[i] = theta.get(row++, 0);
+                }
+                for (int i = 0; i < thetaPower; i++) {
+                    thetafi[i] = theta.get(row++, 0);
+                }
+                for (int i = 0; i < thetaPower; i++) {
+                    thetali[i] = theta.get(row++, 0);
+                }
+                double p = 1 / power;
+                double thetasigma = 0;
+                for (int i = 0; i < numClients; i++) {
+                    thetasigma += (thetaconst + thetafi[0] * clientStats.get(i).getStatsCalculator().getCpuFreq() + thetali[0] * clientStats.get(i).getStatsCalculator().getCpuLoad()[0]);
+                }
+                Polynomial poly = new Polynomial();
+                poly.add(new Term(numClients, p));
+                poly.add(new Term(-p * thetasigma, p - 1));
+                poly.add(new Term(-thetadi[0] * fileSize, 0));
+                double k = new PolynomialSolver(poly).solve();
+                double dsum = 0;
+                for (int i = 0; i < numClients - 1; i++) {
+                    newDsize[i] = k - (thetaconst + thetafi[0] * clientStats.get(i).getStatsCalculator().getCpuFreq() + thetali[0] * clientStats.get(i).getStatsCalculator().getCpuLoad()[0]);
+                    newDsize[i] /= thetadi[0];
+                    newDsize[i] = Math.pow(newDsize[i], p);
+                    newDsize[i] /= fileSize;
+                    dsum += newDsize[i];
+                }
+                newDsize[numClients - 1] = 1 - dsum;
+            } else if (thetaPower == 2) {
+                int row = 0;
+                thetaconst = theta.get(row++, 0);
+                for (int i = 0; i < thetaPower; i++) {
+                    thetadi[i] = theta.get(row++, 0);
+                }
+                for (int i = 0; i < thetaPower; i++) {
+                    thetafi[i] = theta.get(row++, 0);
+                }
+                for (int i = 0; i < thetaPower; i++) {
+                    thetali[i] = theta.get(row++, 0);
+                }
+
+            } else if (thetaPower == 3) {
+
+            } else if (thetaPower == 4) {
+
+            }
+        }
     }
 
 }
