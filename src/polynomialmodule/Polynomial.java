@@ -8,7 +8,7 @@ public class Polynomial {
     ArrayList<Term> polynomial;
 
     public Polynomial() {
-        polynomial = new ArrayList<Term>();
+        polynomial = new ArrayList<>();
     }
 
     public Polynomial(ArrayList<Term> poly) {
@@ -57,6 +57,7 @@ public class Polynomial {
         return val;
     }
 
+    @Override
     public String toString() {
         StringBuilder st = new StringBuilder();
         for (int i = 0; i < polynomial.size() - 1; i++) {

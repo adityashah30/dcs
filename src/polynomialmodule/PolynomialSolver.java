@@ -1,21 +1,9 @@
 package polynomialmodule;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 public class PolynomialSolver {
 
     private Polynomial p;
 
-//    public static void main(String[] args) {
-//        Polynomial p = new Polynomial();
-//        p.add(new Term(1, 2));
-//        p.add(new Term(2, 1));
-//        p.add(new Term(1, 0));
-//        System.out.println(p);
-//        PolynomialSolver ps = new PolynomialSolver(p);
-//        System.out.println(ps.solve());
-//    }
     public PolynomialSolver(Polynomial p) {
         this.p = p;
     }
