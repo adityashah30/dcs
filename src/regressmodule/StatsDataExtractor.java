@@ -12,11 +12,17 @@ public class StatsDataExtractor {
     ArrayList<Stats> clientStats;
 
     public StatsDataExtractor() {
-        filename = "clientstats";
-        outputFile = "data/regressdata";
+        filename = "clientstats.bin";
+        File outputDir = new File("data");
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+        outputFile = "data/regressdata.txt";
         File f = new File(outputFile);
-        if (!f.exists()) {
-            f.mkdirs();
+        try {
+            f.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         clientStats = (ArrayList<Stats>) FileHandler.loadObject(filename);
         extractData();
@@ -25,17 +31,17 @@ public class StatsDataExtractor {
     public void extractData() {
         BufferedWriter fout;
         try {
-            fout = new BufferedWriter(new FileWriter(outputFile));
+            fout = new BufferedWriter(new FileWriter(new File(outputFile)));
             for (Stats st : clientStats) {
                 long time = st.getTime();
-                double chunkSize = st.getChunkSize();
+                double chunkSize = Math.pow(st.getChunkSize() * st.getFileSize(), st.getPower());
                 int frequency = st.getStatsCalculator().getCpuFreq();
                 double load = st.getStatsCalculator().getCpuLoad()[0];
                 fout.write(time + " " + chunkSize + " " + frequency + " " + load + "\n");
             }
             fout.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();;
         }
     }
 }

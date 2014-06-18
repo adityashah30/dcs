@@ -55,7 +55,7 @@ public class FileReceiverThread implements Runnable {
                     this.getInstance().writeStats(ipAddress, statsObject);
                     tempFile.delete();
                 } else {
-                    ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
+                    ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats.bin");
                     String filename = "";
                     String socketIpAddress = socket.getInetAddress().toString().substring(1);
                     for (Stats st : clientStats) {
@@ -117,7 +117,7 @@ public class FileReceiverThread implements Runnable {
     }
 
     public static synchronized void writeStats(String ipAddress, StatsCalculator statsObject) {
-        ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
+        ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats.bin");
         if (clientStats == null) {
             clientStats = new ArrayList<>();
         }
@@ -125,17 +125,17 @@ public class FileReceiverThread implements Runnable {
         statsObj.setIpAddress(ipAddress);
         statsObj.setFilename("file" + clientStats.size() + ".txt");
         clientStats.add(statsObj);
-        FileHandler.saveObject("clientstats", clientStats);
+        FileHandler.saveObject("clientstats.bin", clientStats);
     }
 
     public static synchronized void writeTime(String ipAddress, long time) {
-        ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
-        for (Stats st : clientStats) {
-            if (st.getIpAddress() == ipAddress) {
-                st.setTime(time);
+        ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats.bin");
+        for (int i = 0; i < clientStats.size(); i++) {
+            if (clientStats.get(i).getIpAddress().equals(ipAddress)) {
+                clientStats.get(i).setTime(time);
                 break;
             }
         }
-        FileHandler.saveObject("clientstats", clientStats);
+        FileHandler.saveObject("clientstats.bin", clientStats);
     }
 }

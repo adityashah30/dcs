@@ -22,7 +22,7 @@ public class FileReceiveServer implements Runnable {
         this.isStats = isStats;
         clientThreads = new ArrayList<Thread>();
         if (isMaster && !isStats) {
-            totalClients = ((ArrayList<Stats>) FileHandler.loadObject("clientstats")).size();
+            totalClients = ((ArrayList<Stats>) FileHandler.loadObject("clientstats.bin")).size();
             clientsReceived = 0;
         }
         try {

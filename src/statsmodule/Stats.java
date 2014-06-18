@@ -6,6 +6,8 @@ public class Stats implements Serializable {
 
     private StatsCalculator statsCalculator;
     private double chunkSize;
+    private static double power;
+    private static long fileSize;
     private String ipAddress;
     private String filename;
     private long time;
@@ -56,6 +58,22 @@ public class Stats implements Serializable {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public static double getPower() {
+        return Stats.power;
+    }
+
+    public static void setPower(double power) {
+        Stats.power = power;
+    }
+
+    public static long getFileSize() {
+        return Stats.fileSize;
+    }
+
+    public static void setFileSize(long fileSize) {
+        Stats.fileSize = fileSize;
     }
 
 }

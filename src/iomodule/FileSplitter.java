@@ -16,7 +16,7 @@ public class FileSplitter {
 
         file = new File(fname);
         fileSize = fsize;
-        clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
+        clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats.bin");
         numClients = clientStats.size();
         split();
     }

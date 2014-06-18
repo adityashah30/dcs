@@ -13,7 +13,7 @@ public class DataRegressor {
 
     public void getEquation() {
         try {
-            Scanner in = new Scanner(new BufferedReader(new FileReader(new File("data/regressdata"))));
+            Scanner in = new Scanner(new BufferedReader(new FileReader(new File("data/regressdata.txt"))));
             ArrayList<Double> T = new ArrayList<>();
             ArrayList<Double> D = new ArrayList<>();
             ArrayList<Double> F = new ArrayList<>();
@@ -33,17 +33,17 @@ public class DataRegressor {
                 X[i][2] = L.get(i);
                 Y[i][0] = T.get(i);
             }
-            PolynomialRegression pobj1 = new PolynomialRegression(X, Y, 1, 4);
+            PolynomialRegression pobj1 = new PolynomialRegression(X, Y, 1);
             pobj1.fit();
             SimpleMatrix thetaNew = pobj1.getCoefficients().getTheta();
             double alpha = 0.125;
             SimpleMatrix thetaOld = null;
             try {
-                thetaOld = SimpleMatrix.loadCSV("data/equation");
+                thetaOld = SimpleMatrix.loadCSV("data/equation.txt");
                 thetaNew = thetaOld.scale(1 - alpha).plus(thetaNew.scale(alpha));
             } catch (IOException e) {
             }
-            thetaNew.saveToFileCSV("data/equation");
+            thetaNew.saveToFileCSV("data/equation.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }

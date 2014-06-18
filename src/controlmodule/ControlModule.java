@@ -27,7 +27,7 @@ public class ControlModule implements Runnable {
     private double power;
     private long fileSize;
     private long runningTime;
-    private DataRegressor regressor;
+    private Regressor regressor;
 
     public ControlModule(MainGUI gui) {
         this.gui = gui;
@@ -51,7 +51,7 @@ public class ControlModule implements Runnable {
             broadcast();
             gui.setProgressBar(20);
             System.out.println("Broadcast ends...");
-            if (!new File("clientstats").exists()) {
+            if (!new File("clientstats.bin").exists()) {
                 gui.setStatusLabel("No Clients");
                 gui.setProgressBar(100);
                 System.out.println("No clients online.. Exiting..");
@@ -82,7 +82,7 @@ public class ControlModule implements Runnable {
             gui.setStatusLabel("Complete");
             System.out.println("Merge ends...");
             long endTime = System.currentTimeMillis();
-            regressor = new DataRegressor();
+            regressor = new Regressor();
             fileCleanup();
             System.out.println("Program ends...");
             System.out.println("Time: " + (endTime - startTime) + "ms");
@@ -129,9 +129,9 @@ public class ControlModule implements Runnable {
 
     public void fileCleanup() {
         if (isMaster) {
-            File f = new File("clientstats");
+            File f = new File("clientstats.bin");
             if (f.exists()) {
-                int numClients = ((ArrayList<Stats>) FileHandler.loadObject("clientstats")).size();
+                int numClients = ((ArrayList<Stats>) FileHandler.loadObject("clientstats.bin")).size();
                 for (int i = 1; i < numClients; i++) {
                     File f2 = new File("file" + i + ".txt");
                     if (f2.exists()) {
@@ -141,14 +141,19 @@ public class ControlModule implements Runnable {
                 f.delete();
             }
             f = new File("file0.txt");
-            File newFile = new File("Processed data");
-            f.renameTo(newFile);
+            if (f.exists()) {
+                File newFile = new File("Processed data.txt");
+                if (newFile.exists()) {
+                    newFile.delete();
+                }
+                f.renameTo(newFile);
+            }
         } else {
-            File f = new File("stats");
+            File f = new File("stats.bin");
             if (f.exists()) {
                 f.delete();
             }
-            f = new File("serverinfo");
+            f = new File("serverinfo.bin");
             if (f.exists()) {
                 f.delete();
             }
@@ -188,12 +193,12 @@ public class ControlModule implements Runnable {
 
     public void calculateStats() {
         StatsCalculator statsObj = new StatsCalculator();
-        FileHandler.saveObject("stats", statsObj);
+        FileHandler.saveObject("stats.bin", statsObj);
     }
 
     public void sendStats() {
-        String serverIpAddress = ((InetAddress) FileHandler.loadObject("serverinfo")).toString().substring(1);
-        new Thread(new FileSenderThread("stats", null, serverIpAddress, sendPort, isMaster)).start();
+        String serverIpAddress = ((InetAddress) FileHandler.loadObject("serverinfo.bin")).toString().substring(1);
+        new Thread(new FileSenderThread("stats.bin", null, serverIpAddress, sendPort, isMaster)).start();
     }
 
     public void runAlgo() {
@@ -210,22 +215,30 @@ public class ControlModule implements Runnable {
     }
 
     public void executeProgram() {
-        Thread t = new Thread(new ExecuteJAR("program.jar", "file1.txt"));
+        boolean flag = false;
+        Thread t = new Thread(new ExecuteJAR("program.jar", "file1.txt", this));
         long startTime = System.currentTimeMillis();
         t.start();
-        while (t.isAlive());
+        synchronized (this) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         long endTime = System.currentTimeMillis();
         runningTime = endTime - startTime;
+        System.out.println("Program executed in: " + runningTime);
     }
 
     public void send() {
         if (isMaster) {
-            ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats");
+            ArrayList<Stats> clientStats = (ArrayList<Stats>) FileHandler.loadObject("clientstats.bin");
             for (int i = 0; i < clientStats.size(); i++) {
                 new Thread(new FileSenderThread(programPath, clientStats.get(i).getFilename(), clientStats.get(i).getIpAddress(), sendPort, isMaster)).start();
             }
         } else {
-            String serverIpAddress = ((InetAddress) FileHandler.loadObject("serverinfo")).toString().substring(1);
+            String serverIpAddress = ((InetAddress) FileHandler.loadObject("serverinfo.bin")).toString().substring(1);
             Thread t = new Thread(new FileSenderThread("file1.txt", null, serverIpAddress, sendPort, isMaster, runningTime));
             t.start();
             while (t.isAlive());

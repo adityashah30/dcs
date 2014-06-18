@@ -23,7 +23,7 @@ public class Term implements Comparable {
 
     public String toString() {
         if (degree != 0) {
-            return "(" + coefficient + ")" + "x^" + degree;
+            return "(" + coefficient + ")*" + "x**" + degree;
         } else {
             return String.valueOf(coefficient);
         }

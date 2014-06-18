@@ -22,7 +22,7 @@ public class Distributor {
         this.fileSize = fsize;
         this.order = order;
         this.power = power;
-        this.clientStats = (ArrayList<Stats>) (FileHandler.loadObject("clientstats"));
+        this.clientStats = (ArrayList<Stats>) (FileHandler.loadObject("clientstats.bin"));
         this.numClients = clientStats.size();
         this.oldDsize = new double[numClients];
         this.newDsize = new double[numClients];
@@ -30,13 +30,21 @@ public class Distributor {
     }
 
     public void calculate() {
+        Stats.setFileSize(fileSize);
+        Stats.setPower(power);
         oldCalculate();
-        newCalculate();
-        for (int i = 0; i < numClients; i++) {
-            double size = (alpha) * oldDsize[i] + (1 - alpha) * newDsize[i];
-            clientStats.get(i).setChunkSize(size);
+        if (newCalculate()) {
+            for (int i = 0; i < numClients; i++) {
+                double size = (alpha) * oldDsize[i] + (1 - alpha) * newDsize[i];
+                clientStats.get(i).setChunkSize(size);
+            }
+        } else {
+            for (int i = 0; i < numClients; i++) {
+                double size = oldDsize[i];
+                clientStats.get(i).setChunkSize(size);
+            }
         }
-        FileHandler.saveObject("clientstats", clientStats);
+        FileHandler.saveObject("clientstats.bin", clientStats);
     }
 
     public void oldCalculate() {
@@ -55,13 +63,13 @@ public class Distributor {
 
     }
 
-    public void newCalculate() {
+    public boolean newCalculate() {
         if (order == 1) {
             SimpleMatrix theta = null;
             try {
-                theta = SimpleMatrix.loadCSV("data/equation");
+                theta = SimpleMatrix.loadCSV("data/equation.txt");
             } catch (IOException e) {
-                e.printStackTrace();
+                return false;
             }
             int thetaRows = theta.numRows();
             int thetaPower = (thetaRows - 1) / 3;
@@ -90,7 +98,7 @@ public class Distributor {
                 poly.add(new Term(numClients, p));
                 poly.add(new Term(-p * thetasigma, p - 1));
                 poly.add(new Term(-thetadi[0] * fileSize, 0));
-                double k = new PolynomialSolver(poly).solve();
+                double k = new PolynomialSolver(poly).solve(true);
                 double dsum = 0;
                 for (int i = 0; i < numClients - 1; i++) {
                     newDsize[i] = k - (thetaconst + thetafi[0] * clientStats.get(i).getStatsCalculator().getCpuFreq() + thetali[0] * clientStats.get(i).getStatsCalculator().getCpuLoad()[0]);
@@ -119,6 +127,7 @@ public class Distributor {
 
             }
         }
+        return true;
     }
 
 }

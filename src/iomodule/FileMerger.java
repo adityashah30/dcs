@@ -17,7 +17,7 @@ public class FileMerger {
         } else {
             this.mergePath = mergePath;
         }
-        numFiles = ((ArrayList<Stats>) FileHandler.loadObject("clientstats")).size();
+        numFiles = ((ArrayList<Stats>) FileHandler.loadObject("clientstats.bin")).size();
         mergeFiles();
     }
 
