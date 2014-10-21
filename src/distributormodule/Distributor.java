@@ -16,7 +16,7 @@ public class Distributor {
     private int numClients;
     private double[] oldDsize;
     private double[] newDsize;
-    private double alpha = 0.25;
+    private double alpha = 0.2;
 
     public Distributor(long fsize, int order, double power) {
         this.fileSize = fsize;
@@ -43,6 +43,9 @@ public class Distributor {
                 double size = oldDsize[i];
                 clientStats.get(i).setChunkSize(size);
             }
+        }
+        for (int i = 0; i < numClients; i++) {
+            System.out.println(clientStats.get(i).getChunkSize());
         }
         FileHandler.saveObject("clientstats.bin", clientStats);
     }
@@ -103,6 +106,7 @@ public class Distributor {
                 for (int i = 0; i < numClients - 1; i++) {
                     newDsize[i] = k - (thetaconst + thetafi[0] * clientStats.get(i).getStatsCalculator().getCpuFreq() + thetali[0] * clientStats.get(i).getStatsCalculator().getCpuLoad()[0]);
                     newDsize[i] /= thetadi[0];
+                    newDsize[i] = Math.abs(newDsize[i]);
                     newDsize[i] = Math.pow(newDsize[i], p);
                     newDsize[i] /= fileSize;
                     dsum += newDsize[i];

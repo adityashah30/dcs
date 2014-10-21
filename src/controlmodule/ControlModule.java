@@ -82,7 +82,9 @@ public class ControlModule implements Runnable {
             gui.setStatusLabel("Complete");
             System.out.println("Merge ends...");
             long endTime = System.currentTimeMillis();
-            regressor = new Regressor();
+            if (isAlgo) {
+                regressor = new Regressor();
+            }
             fileCleanup();
             System.out.println("Program ends...");
             System.out.println("Time: " + (endTime - startTime) + "ms");
@@ -202,8 +204,8 @@ public class ControlModule implements Runnable {
     }
 
     public void runAlgo() {
+        fileSize = FileHandler.getNumInts(dataPath);
         if (isAlgo) {
-            fileSize = FileHandler.getNumInts(dataPath);
             new Distributor(fileSize, order, power);
         } else {
             new ClassicDistributor();
